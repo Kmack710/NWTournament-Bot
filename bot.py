@@ -168,59 +168,9 @@ async def createevent(ctx:SlashContext, event_name:str, time:str, server:str):
     await ctx.send(embed=embed)
     mariadb_connection.commit()
 
-## Make Bracket from teams FUNCTION
-def makebracketf(eventid):
-    sql_statement = f"SELECT * FROM registration WHERE event_id='{eventid}'"
-    db710.execute(sql_statement)
-    final_result = [i[1] for i in db710.fetchall()]
-    print(final_result)
-    
 
 
 
-## Make Bracket Command 
-@slash.slash(
-    name= 'makebracket',
-    description= 'Make the bracket for event! WARNING once this is done you can no longer create the bracket!',
-    guild_ids=guild_ids,
-    options=[
-        create_option(
-            name = "eventid",
-            description= "Event ID for your event!",
-            required = True,
-            option_type=3
-        )
-    ]
-)
-
-
-
-async def makebracket(ctx:SlashContext, eventid:str):
-    sql_statement = f"SELECT * FROM registration WHERE event_id='{eventid}'"
-    db710.execute(sql_statement)
-    final_result = [i[1] for i in db710.fetchall()]
-    print(final_result)
-    embed = discord.Embed(title="NW Tournaments", url="https://710gaming.xyz/nwtournaments", description=f'Bracket for event # {eventid}', color=0xadff2f)
-    list_a = final_result[:len(final_result)//2]
-    list_b = final_result[len(final_result)//2:]
-    print(list_a)
-    print(list_b, "LIST B")
-    x = 0
-    for x in range(len(list_a)):
-        print(list_a[x])
-    j = 0
-    for j in range(len(list_b)):
-        print(list_b[j])
-        #j = j + 1
-        ##embed.add_field(name='Team Name', value=final_result[i], inline=False)
-        embed.add_field(name="Match", value=f"{list_a[x]} VS {list_b[j]}", inline=True)
-    embed.set_thumbnail(url="https://imgur.com/xhasHXb.png")
-    embed.set_footer(text="Sent by {}".format(ctx.author.display_name))
-    await ctx.send(embed=embed)
-
-
-
-## Send embed message with manage message permissions
 @bot.command(brief='Admin/Mod only')
 @commands.has_permissions(manage_messages=True)
 async def embed(ctx, *,text):
@@ -232,6 +182,3 @@ async def embed(ctx, *,text):
 
 
 bot.run(token)
-
-
- 
