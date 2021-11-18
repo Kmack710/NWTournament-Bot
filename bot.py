@@ -4,6 +4,7 @@ import requests
 import asyncio 
 import string
 import itertools
+import json
 from discord_slash import SlashCommand, SlashContext
 from discord_slash.model import SlashCommandPermissionType
 from discord_slash.utils.manage_commands import create_choice, create_option
@@ -84,6 +85,7 @@ async def registersolo(ctx:SlashContext, role:str, event_id:str, ign:str):
     embed.set_footer(text="Powered By NWT.710gaming.xyz")
     await ctx.send(embed=embed)
     mariadb_connection.commit()
+    
 
 
 # Team Register Event
@@ -123,6 +125,7 @@ async def registerteam(ctx:SlashContext, team:str, event_id:str, ign:str):
     embed.set_footer(text="Powered By NWT.710gaming.xyz")
     await ctx.send(embed=embed)
     mariadb_connection.commit()
+    
 
 
 
@@ -149,40 +152,83 @@ async def registerteam(ctx:SlashContext, team:str, event_id:str, ign:str):
             description= "Server you are hosting this event on",
             option_type=3, 
             required =True
+        ),
+        create_option(
+            name = "info",
+            description= "A BREIF amount of info about your event (150 characters max)",
+            option_type=3, 
+            required =True
+        ),
+        create_option(
+            name ="rules",
+            description= "Basic rules for your event (100 characters max)",
+            option_type=3, 
+            required =True
         ) 
     ]
 )
-async def createevent(ctx:SlashContext, event_name:str, time:str, server:str):
-    sql_statement = f"INSERT INTO `events` VALUES (null, '{event_name}', '{time}', '{server}')"
+async def createevent(ctx:SlashContext, event_name:str, time:str, server:str, info:str, rules:str):
+    sql_statement = f"INSERT INTO `events` VALUES (null, '{event_name}', '{time}', '{server}', '{info}', '{rules}', '{ctx.author}')"
     db710.execute(sql_statement)
     sql_statement2 = f"SELECT event_id FROM `events` WHERE event_name='{event_name}' AND event_time='{time}'"
     db710.execute(sql_statement2)
     neweid = db710.fetchone()[0]
-    #neweidc = neweid['event_id']
     embed = discord.Embed(title="NW Tournaments", url="https://710gaming.xyz/nwtournaments", description="Event Created", color=0xadff2f)
     embed.add_field(name='Event Name', value=f'{event_name}',  inline=False)
-    embed.add_field(name='Event Time', value=f'{time}',  inline=False)
+    embed.add_field(name='Event Time', value=f'{time}',  inline=True)
+    embed.add_field(name='Event Info', value=f'{info}',  inline=False)
+    embed.add_field(name='Event Rules', value=f'{rules}',  inline=True)
     embed.add_field(name='Server', value=f'{server}',  inline=False)
     embed.add_field(name='Event ID', value=f'{neweid}',  inline=False)
+    embed.add_field(name='Event Creator', value=f'{ctx.author.display_name}',  inline=True)
+    embed.add_field(name='How to sign up', value=f'To sign up to this event use /registerteam (team name) (team leader name) {neweid} -- /registersolo is still in development!',  inline=False)
     embed.set_thumbnail(url="https://imgur.com/xhasHXb.png")
     embed.set_footer(text="Powered By NWT.710gaming.xyz")
     await ctx.send(embed=embed)
+    await bot.get_channel(899569395368607795).send(embed=embed)
     mariadb_connection.commit()
-
-## Make Bracket from teams FUNCTION
-def makebracketf(eventid):
-    sql_statement = f"SELECT * FROM registration WHERE event_id='{eventid}'"
-    db710.execute(sql_statement)
-    final_result = [i[1] for i in db710.fetchall()]
-    print(final_result)
     
 
-
-
+## Remove losing teams from event list
+@slash.slash(
+    name = 'removeteam',
+    description = 'Remove a team from the event! (Event creator only)',
+    guild_ids=guild_ids,
+    options=[
+        create_option(
+            name = "eventid",
+            description= "Event ID for the event your removing a team from",
+            required =True,
+            option_type=3
+        ),
+        create_option(
+            name = "teamname",
+            description= "Team name for the team your want to remove (Must be exact with spaces and all!)",
+            required =True,
+            option_type=3
+        )
+    ]
+)
+async def removeteam(ctx:SlashContext, eventid:str, teamname:str):
+    sql_statement = f"SELECT * FROM events WHERE event_id='{eventid}'"
+    db710.execute(sql_statement)
+    final_result = [i[6] for i in db710.fetchall()]
+    final_name = final_result[0]
+    ctxname = ctx.author
+    if (str(final_name) == str(ctxname)):
+        sql_statement2 = f"DELETE FROM registration WHERE event_id ='{eventid}' AND team_name ='{teamname}'"
+        db710.execute(sql_statement2)
+        mariadb_connection.commit()
+        await ctx.send(f"{teamname} was removed from event {eventid}")
+        print("I worked")
+    else: 
+        await ctx.send("You didnt make this event!")
+        
+        
 ## Make Bracket Command 
 @slash.slash(
     name= 'makebracket',
-    description= 'Make the bracket for event! WARNING once this is done you can no longer create the bracket!',
+    description= 'Make the matches for the event! After a team loses use /removeteam (Event Creator only)',
     guild_ids=guild_ids,
     options=[
         create_option(
@@ -194,26 +240,63 @@ def makebracketf(eventid):
     ]
 )
 
-
-
 async def makebracket(ctx:SlashContext, eventid:str):
+    sql_statement = f"SELECT * FROM events WHERE event_id='{eventid}'"
+    db710.execute(sql_statement)
+    final_result = [i[6] for i in db710.fetchall()]
+    final_name = final_result[0]
+    ctxname = ctx.author
+    if (str(final_name) == str(ctxname)):
+        print("I worked")
+        sql_statement2 = f"SELECT * FROM registration WHERE event_id='{eventid}'"
+        db710.execute(sql_statement2)
+        final_result = [i[1] for i in db710.fetchall()]
+        embed = discord.Embed(title="NW Tournaments", url="https://710gaming.xyz/nwtournaments", description=f'Bracket for event # {eventid}', color=0xadff2f)
+        list_a = final_result[:len(final_result)//2]
+        list_b = final_result[len(final_result)//2:]
+        for j in range(len(list_a)):
+            embed.add_field(name="Match", value=f"{list_a[j]} VS {list_b[j]}", inline=True)
+        embed.set_thumbnail(url="https://imgur.com/xhasHXb.png")
+        embed.set_footer(text="Sent by {}".format(ctx.author.display_name))
+        await ctx.send(embed=embed)
+        mariadb_connection.commit()
+    else: 
+        await ctx.send("You didnt make this event!")
+      
+## Check Registered teams command
+@slash.slash(
+    name= 'event',
+    description= 'Check Registered teams for the event!',
+    guild_ids=guild_ids,
+    options=[
+        create_option(
+            name = "eventid",
+            description= "Event ID for your event!",
+            required = True,
+            option_type=3
+        )
+    ]
+)
+async def event(ctx:SlashContext, eventid:str):
     sql_statement = f"SELECT * FROM registration WHERE event_id='{eventid}'"
     db710.execute(sql_statement)
-    final_result = [i[1] for i in db710.fetchall()]
-    print(final_result)
-    embed = discord.Embed(title="NW Tournaments", url="https://710gaming.xyz/nwtournaments", description=f'Bracket for event # {eventid}', color=0xadff2f)
-    list_a = final_result[:len(final_result)//2]
-    list_b = final_result[len(final_result)//2:]
-    print(list_a)
-    print(list_b, "LIST B")
-    for x, j in itertools.product(range(len(list_a)), range(len(list_b))):
-        ##embed.add_field(name='Team Name', value=final_result[i], inline=False)
-        embed.add_field(name="Match", value=f"{list_a[x]} VS {list_b[j]}", inline=True)
+    final_result = [i for i in db710.fetchall()]
+    sql_statement2 = f"SELECT * FROM events WHERE event_id='{eventid}'"
+    db710.execute(sql_statement2)
+    final_result2 = [r for r in db710.fetchall()]
+    final_result3 = list((final_result2[0]))
+    embed = discord.Embed(title="NW Tournaments", url="https://710gaming.xyz/nwtournaments", description=f'Teams Registered for event # {eventid} - {final_result3[1]}', color=0xadff2f)
+    for j in range(len(final_result)):
+        embed.add_field(name=f"{final_result[j][1]}", value=f"{final_result[j][2]}", inline=True)
     embed.set_thumbnail(url="https://imgur.com/xhasHXb.png")
-    embed.set_footer(text="Sent by {}".format(ctx.author.display_name))
+    embed.add_field(name="Event Info", value=f"Time - {final_result3[2]}", inline=False)
+    embed.add_field(name="Event Time", value=f"{final_result3[4]}", inline=False)
+    embed.add_field(name="Event Rules", value=f"{final_result3[5]}", inline=False)
+    embed.add_field(name="Event Creator", value=f"{final_result3[6]}", inline=False)
+    embed.set_footer(text=f"This is the current Teams and their leaders signed up for event #{eventid}")
     await ctx.send(embed=embed)
-
-
+    mariadb_connection.commit()
+    
 
 ## Send embed message with manage message permissions
 @bot.command(brief='Admin/Mod only')
@@ -228,11 +311,3 @@ async def embed(ctx, *,text):
 
 bot.run(token)
 
-
- 
-"""    for x in range(len(list_a)):
-        print(list_a[x])
-    j = 0
-    for j in range(len(list_b)):
-        print(list_b[j])
-        #j = j + 1"""
