@@ -24,10 +24,16 @@ slash = SlashCommand(bot, sync_commands=True)
 addcommands = {}
 db710 = mariadb_connection.cursor()
 ## Get guild bot is in
+
 def get_guilds_bot_in():
+    listofids = []
     for guild in bot.guilds:
-        print(guild.id) 
-guild_ids=bot.guilds.id
+        listofids.append(guild.id)
+        print(listofids)
+        return(listofids) 
+
+
+guild_ids=get_guilds_bot_in
 
 
 @bot.event 
