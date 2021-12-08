@@ -14,6 +14,8 @@ from discord import Colour, Embed, utils, Client, Intents
 from discord.ext.commands import BadArgument, Cog, Context, command
 from auth import token, mariadb_connection
 
+
+
 # Locales 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="NWT", intents=intents)
@@ -21,6 +23,10 @@ client = commands.Bot(command_prefix = 'NWT')
 slash = SlashCommand(bot, sync_commands=True)
 addcommands = {}
 db710 = mariadb_connection.cursor()
+## Get guild bot is in
+def get_guilds_bot_in():
+    for guild in bot.guilds:
+        print(guild.id) 
 guild_ids=bot.guilds.id
 
 
@@ -28,14 +34,14 @@ guild_ids=bot.guilds.id
 async def on_ready():
     startmessage = f'I just started - My ping is {round(bot.latency * 1000)}ms!'
     await bot.change_presence(activity = discord.Activity (type = discord.ActivityType.watching, name = 'New World PvP'))
+    inguilds = bot.guilds 
     embed=discord.Embed(title=f"I Have been started!",description=startmessage,color=0xadff2f)
     embed.set_thumbnail(url="https://imgur.com/xhasHXb.png")
+    embed.add_field(name='Servers', value=f'{len(inguilds)}',  inline=False)
     embed.set_footer(text="Created by Kmack710#0710")
     await bot.get_channel(907754450624585748).send(embed=embed)
-    inguilds = client.guilds 
-    print(len(inguilds))
     print("Online and Ready and in ", len(inguilds), "servers")
-    print(bot.guilds.guild_id)
+    #print(bot.fetch_guilds(limit=150).flatten())
   
 #guild_ids=guilds
 # Solo Register Event
