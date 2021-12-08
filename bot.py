@@ -220,7 +220,6 @@ async def removeteam(ctx:SlashContext, eventid:str, teamname:str):
         db710.execute(sql_statement2)
         mariadb_connection.commit()
         await ctx.send(f"{teamname} was removed from event {eventid}")
-        print("I worked")
     else: 
         await ctx.send("You didnt make this event!")
         
@@ -247,7 +246,6 @@ async def makebracket(ctx:SlashContext, eventid:str):
     final_name = final_result[0]
     ctxname = ctx.author
     if (str(final_name) == str(ctxname)):
-        print("I worked")
         sql_statement2 = f"SELECT * FROM registration WHERE event_id='{eventid}'"
         db710.execute(sql_statement2)
         final_result = [i[1] for i in db710.fetchall()]
