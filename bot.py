@@ -21,7 +21,7 @@ client = commands.Bot(command_prefix = 'NWT')
 slash = SlashCommand(bot, sync_commands=True)
 addcommands = {}
 db710 = mariadb_connection.cursor()
-#guild_ids=[898721255572766721, 499093816129880067]
+guild_ids=bot.guilds
 
 
 @bot.event 
@@ -33,8 +33,7 @@ async def on_ready():
     embed.set_footer(text="Created by Kmack710#0710")
     await bot.get_channel(907754450624585748).send(embed=embed)
     print("Online and Ready")
-    guilds = await client.fetch_guilds(limit=150).flatten()
-    print(guilds)
+    print(bot.guilds)
   
 #guild_ids=guilds
 # Solo Register Event
