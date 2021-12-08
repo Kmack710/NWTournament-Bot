@@ -25,16 +25,30 @@ addcommands = {}
 db710 = mariadb_connection.cursor()
 ## Get guild bot is in
 
-def get_guilds_bot_in():
+async def get_guilds_bot_in():
     listofids = []
     for guild in bot.guilds:
         listofids.append(guild.id)
         print(listofids)
         return(listofids) 
+    
 
 
-guild_ids=[]
+guild_ids= db710.execute('SELECT guild_id FROM data')
 
+## Send embed message with manage message permissions
+@bot.command(brief='Admin/Mod only')
+async def updateservers(ctx):
+    devteam='Kmack710#0710'
+    listofids = []
+    for guild in bot.guilds:
+        listofids.append(guild.id)
+    if (str(devteam) == str(ctx.author)):
+        db710.execute(f'UPDATE data SET guild_id={listofids}')
+        await ctx.send('Updated servers!')
+        await ctx.message.delete()
+    else:
+        await ctx.send('This command is for Dev team only!') 
 
 @bot.event 
 async def on_ready():
