@@ -24,19 +24,12 @@ slash = SlashCommand(bot, sync_commands=True)
 addcommands = {}
 db710 = mariadb_connection.cursor()
 ## Get guild bot is in
+#getgids = db710.execute('SELECT guild_id FROM data')
 
-async def get_guilds_bot_in():
-    listofids = []
-    for guild in bot.guilds:
-        listofids.append(guild.id)
-        print(listofids)
-        return(listofids) 
-    
+guild_ids=[499093816129880067, 898721255572766721]
 
-
-guild_ids= db710.execute('SELECT guild_id FROM data')
-
-## Send embed message with manage message permissions
+## WIP
+'''
 @bot.command(brief='Admin/Mod only')
 async def updateservers(ctx):
     devteam='Kmack710#0710'
@@ -49,7 +42,7 @@ async def updateservers(ctx):
         await ctx.message.delete()
     else:
         await ctx.send('This command is for Dev team only!') 
-
+'''
 @bot.event 
 async def on_ready():
     startmessage = f'I just started - My ping is {round(bot.latency * 1000)}ms!'
