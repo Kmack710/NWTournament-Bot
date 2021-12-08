@@ -21,7 +21,7 @@ client = commands.Bot(command_prefix = 'NWT')
 slash = SlashCommand(bot, sync_commands=True)
 addcommands = {}
 db710 = mariadb_connection.cursor()
-guild_ids=bot.guilds
+guild_ids=bot.guilds[0]
 
 
 @bot.event 
