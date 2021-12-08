@@ -33,7 +33,7 @@ def get_guilds_bot_in():
         return(listofids) 
 
 
-guild_ids=get_guilds_bot_in
+guild_ids=[]
 
 
 @bot.event 
