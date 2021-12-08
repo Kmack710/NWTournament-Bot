@@ -21,7 +21,9 @@ client = commands.Bot(command_prefix = 'NWT')
 slash = SlashCommand(bot, sync_commands=True)
 addcommands = {}
 db710 = mariadb_connection.cursor()
+print(client.fetch_guilds(limit=150).flatten())
 guild_ids=[898721255572766721, 499093816129880067]
+##await client.fetch_guilds(limit=150).flatten()
 
 @bot.event 
 async def on_ready():
