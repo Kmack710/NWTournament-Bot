@@ -64,8 +64,8 @@ async def on_member_join(member):
     print(member.guild.id)
     return 
   channel = bot.get_channel(898721256143200269) # replace id with the welcome channel's id
-  await channel.send(f"{member.mention} has arrived!, check out our announcments channel for server and bot announcements!")
-  await member.send(f"Thank you for joining {member.guild.name}!")
+  await channel.send(f"{member.mention} has arrived!, check out #nwt-bot-examples for more examples on how to use the bot!")
+  await member.send(f"Thank you for joining {member.guild.name}! We are still in beta If there is any features you want added let us know :)")
 
 
 #guild_ids=guilds
