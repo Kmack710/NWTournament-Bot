@@ -27,7 +27,7 @@ nwthome = 898721255572766721
 ## Get guild bot is in
 #getgids = db710.execute('SELECT guild_id FROM data')
 
-guild_ids=[499093816129880067, 898721255572766721]
+guild_ids=[499093816129880067, 898721255572766721, 750517102733164554]
 
 ## WIP
 '''
