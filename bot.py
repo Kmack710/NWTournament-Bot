@@ -58,11 +58,11 @@ async def on_ready():
     #print(bot.fetch_guilds(limit=150).flatten())
   
 
-@client.event
+@bot.event
 async def on_member_join(member):
   if member.guild.id !=nwthome: 
     return 
-  channel = client.get_channel(898721256143200269) # replace id with the welcome channel's id
+  channel = bot.get_channel(898721256143200269) # replace id with the welcome channel's id
   await channel.send(f"{member.mention} has arrived!, check out our announcments channel for server and bot announcements!")
   await member.send(f"Thank you for joining {member.guild.name}!")
 
