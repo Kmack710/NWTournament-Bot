@@ -62,9 +62,17 @@ async def on_ready():
 async def on_member_join(member):
   if member.guild.id !=nwthome: 
     print(member.guild.id)
-    return 
-  channel = bot.get_channel(898721256143200269) # replace id with the welcome channel's id
-  await channel.send(f"{member.mention} has arrived!, check out #nwt-bot-examples for more examples on how to use the bot!")
+    return
+  exchannel = bot.get_channel(910749463985922119)
+  evchannel = bot.get_channel(899569395368607795) 
+  suchannel = bot.get_channel(911458355921432626)
+  embed = discord.Embed(title="NW Tournaments", url="https://710gaming.xyz/nwtournaments", description=f"{member.mention} has arrived!", color=0xadff2f)
+  embed.add_field(name='Upcoming Events', value=f'{evchannel.mention}',  inline=False)
+  embed.add_field(name='How to use /Examples', value=f'{exchannel.mention}',  inline=False)
+  embed.add_field(name='Suggest features', value=f'{suchannel.mention}',  inline=False)
+  embed.set_thumbnail(url="https://imgur.com/xhasHXb.png")
+  embed.set_footer(text="Powered By NWT.710gaming.xyz")
+  await bot.get_channel(898721256143200269).send(embed=embed) 
   await member.send(f"Thank you for joining {member.guild.name}! We are still in beta If there is any features you want added let us know :)")
 
 
