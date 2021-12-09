@@ -23,7 +23,7 @@ client = commands.Bot(command_prefix = 'NWT')
 slash = SlashCommand(bot, sync_commands=True)
 addcommands = {}
 db710 = mariadb_connection.cursor()
-nwthome = [898721255572766721]
+nwthome = 898721255572766721
 ## Get guild bot is in
 #getgids = db710.execute('SELECT guild_id FROM data')
 
@@ -61,6 +61,7 @@ async def on_ready():
 @bot.event
 async def on_member_join(member):
   if member.guild.id !=nwthome: 
+    print(member.guild.id)
     return 
   channel = bot.get_channel(898721256143200269) # replace id with the welcome channel's id
   await channel.send(f"{member.mention} has arrived!, check out our announcments channel for server and bot announcements!")
